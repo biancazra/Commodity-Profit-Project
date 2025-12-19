@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
@@ -26,12 +27,8 @@ public class Main {
 
         for (int month = 0; month < 12; month++) {
             try {
-                // Dosya yolunu oluştur\
-                String fileName = "C:/Users/akgun/IdeaProjects/CommodityProject/Data_Files/" + Months[month] + ".txt";
-                File file = new File(fileName);
-
                 // Scanner ile dosyayı aç
-                Scanner scanner = new Scanner(file);
+                Scanner scanner = new Scanner(Months[month] + "txt");
 
                 // Satır satır oku
                 while (scanner.hasNextLine()) {
@@ -58,7 +55,7 @@ public class Main {
 
                 scanner.close();
 
-            } catch (FileNotFoundException e) {
+            } catch (Exception e) {
                 System.err.println("Hata: " + Months[month] + ".txt dosyası bulunamadı!");
             }
 
