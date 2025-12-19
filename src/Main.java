@@ -1,7 +1,5 @@
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.Scanner;
+import java.util.*;
+import java.io.*;
 
 public class Main {
     public static final int MONTHS = 12;
@@ -15,24 +13,25 @@ public class Main {
             "July", "August", "September", "October", "November", "December"
     };
 
-    static int[][][] profitData;
+    // 12 ay, 5 emtia, 28 gün
+    public static int[][][] profitData = new int[12][5][28];
 
     public static void main(String[] args) {
         loadData();
     }
 
     public static void loadData() {
-        // 12 ay, 5 emtia, 28 gün
-        profitData = new int[12][5][28];
 
         for (int month = 0; month < 12; month++) {
             try {
                 // Scanner ile dosyayı aç
-                Scanner scanner = new Scanner(Months[month] + "txt");
+
+                File file = new File(Months[month] + ".txt");
+                Scanner sc = new Scanner(file);
 
                 // Satır satır oku
-                while (scanner.hasNextLine()) {
-                    String line = scanner.nextLine();
+                while (sc.hasNext()) {
+                    String line = sc.nextLine();
                     String[] parts = line.split(",");
 
                     if (parts.length == 3) {
@@ -41,7 +40,13 @@ public class Main {
                             String commodity = parts[1].trim();
                             int profit = Integer.parseInt(parts[2].trim());
 
-                            int commodityIndex = findCommodityIndex(commodity);
+                            int commodityIndex = -1;
+                            for(int i = 0; i < COMMODITY; i++){
+                                if (commodity.equals(COMMODITIES[i])){
+                                    commodityIndex = i;
+                                    break;
+                                }
+                            }
 
                             if (commodityIndex != -1 && day >= 0 && day < 28) {
                                 profitData[month][commodityIndex][day] = profit;
@@ -53,7 +58,7 @@ public class Main {
                     }
                 }
 
-                scanner.close();
+                sc.close();
 
             } catch (Exception e) {
                 System.err.println("Hata: " + Months[month] + ".txt dosyası bulunamadı!");
@@ -102,7 +107,13 @@ public class Main {
     //belirtilen emtia için belirtilen gün aralığında toplam karı hesaplıyorum ("Gold") fromDay 1-28 toDay 1-28
     public static int commodityProfitInRange(String commodity, int fromDay, int toDay) {
         //emtia adının indexini buluyorum
-        int commodityIndex = findCommodityIndex(commodity);
+        int commodityIndex = -1;
+        for(int i = 0; i < COMMODITY; i++){
+            if (commodity.equals(COMMODITIES[i])){
+                commodityIndex = i;
+                break;
+            }
+        }
         //emtia adı v e gün aralığının doğru olup olmadığını kontrol ediyorum
         if (commodityIndex == -1 || fromDay < 1 || toDay < 1 || fromDay > 28 || toDay > 28 || fromDay > toDay) {
             return -99999;
@@ -140,7 +151,13 @@ public class Main {
     //Belirtilen emtia için en karlı ayı buluyorum
     public static String bestMonthForCommodity(String commodity) {
         //emtia adının indexini buluyorum
-        int commodityIndex = findCommodityIndex(commodity);
+        int commodityIndex = -1;
+        for(int i = 0; i < COMMODITY; i++){
+            if (commodity.equals(COMMODITIES[i])){
+                commodityIndex = i;
+                break;
+            }
+        }
         //emtia adının doğru olup olmadığını kontrol ediyorum
         if (commodityIndex == -1) {
             return "INVALID_COMMODITY";
@@ -167,7 +184,13 @@ public class Main {
     // kaybetme günü = kar negatif olan gün
     public static int consecutiveLossDays(String commodity) {
         // Emtia adının indexini buluyorum
-        int commodityIndex = findCommodityIndex(commodity);
+        int commodityIndex = -1;
+        for(int i = 0; i < COMMODITY; i++){
+            if (commodity.equals(COMMODITIES[i])){
+                commodityIndex = i;
+                break;
+            }
+        }
 
         // Emtia adının doğru olup olmadığını kontrol ediyorum
         if (commodityIndex == -1) {
@@ -206,7 +229,13 @@ public class Main {
     //belirtilen emtia için karı belirtilen eşikten fazla olan günleri sayıyorum
     public static int daysAboveThreshold(String commodity, int threshold) {
         //emtia adının indexini buluyorum
-        int commodityIndex = findCommodityIndex(commodity);
+        int commodityIndex = -1;
+        for(int i = 0; i < COMMODITY; i++){
+            if (commodity.equals(COMMODITIES[i])){
+                commodityIndex = i;
+                break;
+            }
+        }
         //emtia adının doğru olup olmadığını kontrol ediyorum
         if (commodityIndex == -1) {
             return -1;
@@ -239,7 +268,7 @@ public class Main {
             int profit2 = totalProfitOnDay(month, day + 1); // Gün 2'nin toplam kârı
 
             // İki günün kârı arasındaki farkı hesaplıyorum (mutlak değer)
-            int swing = profit1 > profit2 ? profit1 - profit2 : profit2 - profit1;
+            int swing = Math.abs(profit1 - profit2);
 
             // Eğer bu fark şu ana kadarki en büyükten fazlaysa, güncellerim
             if (swing > maxSwing) {
@@ -254,8 +283,20 @@ public class Main {
     //iki emtianın 12 ay boyunca toplam karını karşılaştırıyorum
     public static String compareTwoCommodities(String c1, String c2) {
         //her iki emtianın indexini buluyorum
-        int index1 = findCommodityIndex(c1);
-        int index2 = findCommodityIndex(c2);
+        int index1 = -1;
+        for(int i = 0; i < COMMODITY; i++){
+            if (c1.equals(COMMODITIES[i])){
+                index1 = i;
+                break;
+            }
+        }
+        int index2 = -1;
+        for(int i = 0; i < COMMODITY; i++){
+            if (c2.equals(COMMODITIES[i])){
+                index2 = i;
+                break;
+            }
+        }
         //emtia adlarının doğru olup olmadığını kontrol ediyorum
         if (index1 == -1 || index2 == -1) {
             return "INVALID_COMMODITY";
@@ -314,15 +355,5 @@ public class Main {
         return "Week " + bestWeek;
     }
 
-    //emtia adından onun indexini buluyorum
-    public static int findCommodityIndex( String commodity) {
-        for (int i = 0; i < COMMODITIES.length; i++) {
-            if (COMMODITIES[i].equals(commodity)){
-                return i;
-            }
-
-        }
-        return -1;
-    }
-
 }
+
